@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import pool from '../db';
+import { getStorage } from '../storage';
 import { JWT_SECRET, requireAuth } from '../middleware/auth';
 
 const router = Router();
@@ -16,17 +16,13 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
   }
 
   try {
-    const result = await pool.query(
-      'SELECT id, username, password_hash FROM users WHERE username = $1',
-      [username]
-    );
+    const user = await getStorage().findUserByUsername(username);
 
-    if (result.rows.length === 0) {
+    if (!user) {
       res.status(401).json({ error: 'Invalid credentials' });
       return;
     }
 
-    const user = result.rows[0];
     const valid = await bcrypt.compare(password, user.password_hash);
 
     if (!valid) {

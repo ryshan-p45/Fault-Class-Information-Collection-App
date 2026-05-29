@@ -1,0 +1,21 @@
+[
+  {"id":1,"number":1,"name":"FSAN not set","category":"FNO","failure_reason":"FNO: FSAN not set","engineer_validated":false,"priority_to_improve":null},
+  {"id":2,"number":2,"name":"ONT not discovered","category":"FNO","failure_reason":"FNO: ONT has not discovered on AEx","engineer_validated":false,"priority_to_improve":null},
+  {"id":3,"number":3,"name":"Device on another service","category":"FNO","failure_reason":"FNO: FSAN Configured on Another Service","engineer_validated":false,"priority_to_improve":null},
+  {"id":4,"number":4,"name":"ONT offline","category":"FNO","failure_reason":"FNO: ONT Offline","engineer_validated":false,"priority_to_improve":null},
+  {"id":5,"number":5,"name":"Service conflict","category":"FNO","failure_reason":"FNO: Service Conflict","engineer_validated":false,"priority_to_improve":null},
+  {"id":6,"number":6,"name":"ONT conflict","category":"FNO","failure_reason":"FNO: ONT Conflict","engineer_validated":false,"priority_to_improve":null},
+  {"id":7,"number":7,"name":"Layer 3 device unavailable","category":"FNO","failure_reason":"FNO: Layer 3 Device Not Available to Provision","engineer_validated":false,"priority_to_improve":null},
+  {"id":8,"number":8,"name":"Missing VLAN","category":"SOFTWARE","failure_reason":"SOFTWARE: Missing VLAN","engineer_validated":false,"priority_to_improve":null},
+  {"id":9,"number":9,"name":"Product config missing","category":"SOFTWARE","failure_reason":"SOFTWARE: Product configuration missing","engineer_validated":false,"priority_to_improve":null},
+  {"id":10,"number":10,"name":"GEM port failure","category":"SOFTWARE","failure_reason":"SOFTWARE: GEM Port Failure","engineer_validated":false,"priority_to_improve":null},
+  {"id":11,"number":11,"name":"eero ownership transfer failure","category":"SOFTWARE","failure_reason":"SOFTWARE: eero ownership transfer failure","engineer_validated":false,"priority_to_improve":null},
+  {"id":12,"number":12,"name":"Timeout","category":"SOFTWARE","failure_reason":"SOFTWARE: Timeout","engineer_validated":false,"priority_to_improve":null},
+  {"id":13,"number":13,"name":"Serial number already exists","category":"SOFTWARE","failure_reason":"SOFTWARE: Serial number already exists","engineer_validated":false,"priority_to_improve":null},
+  {"id":14,"number":14,"name":"No ports available on OLT","category":"INFRASTRUCTURE","failure_reason":"INFRASTRUCTURE: Unable to Access OLT for Provisioning","engineer_validated":false,"priority_to_improve":null},
+  {"id":15,"number":15,"name":"VLAN/VPLS readiness failure","category":"INFRASTRUCTURE","failure_reason":"INFRASTRUCTURE: VLAN / VPLS readiness failure","engineer_validated":false,"priority_to_improve":null},
+  {"id":16,"number":16,"name":"OLT not available","category":"INFRASTRUCTURE","failure_reason":"INFRASTRUCTURE: OLT Not available","engineer_validated":false,"priority_to_improve":null},
+  {"id":17,"number":17,"name":"APC configure failure","category":"INFRASTRUCTURE","failure_reason":"INFRASTRUCTURE: APC configure operation failed","engineer_validated":false,"priority_to_improve":null},
+  {"id":18,"number":18,"name":"Optical / physical fault","category":"Physical","failure_reason":null,"engineer_validated":false,"priority_to_improve":null},
+  {"id":19,"number":19,"name":"PPPoE / RADIUS auth failure","category":"Uncategorised","failure_reason":null,"engineer_validated":false,"priority_to_improve":null}
+]

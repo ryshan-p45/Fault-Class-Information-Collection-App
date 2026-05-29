@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import pool from '../db';
+import { getStorage } from '../storage';
 import { requireAuth } from '../middleware/auth';
 
 const router = Router();
@@ -7,10 +7,8 @@ const router = Router();
 // GET /api/fault-classes
 router.get('/', requireAuth, async (_req: Request, res: Response): Promise<void> => {
   try {
-    const result = await pool.query(
-      'SELECT id, number, name, category, failure_reason, engineer_validated, priority_to_improve FROM fault_classes ORDER BY number ASC'
-    );
-    res.json(result.rows);
+    const faultClasses = await getStorage().getFaultClasses();
+    res.json(faultClasses);
   } catch (err) {
     console.error('Get fault classes error:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -23,23 +21,16 @@ router.put('/:id', requireAuth, async (req: Request, res: Response): Promise<voi
   const { engineer_validated, priority_to_improve } = req.body;
 
   try {
-    const result = await pool.query(
-      `UPDATE fault_classes
-       SET engineer_validated = $1,
-           priority_to_improve = $2,
-           updated_at = NOW()
-       WHERE id = $3
-       RETURNING id, number, name, category, failure_reason, engineer_validated, priority_to_improve`,
-      [engineer_validated, priority_to_improve, id]
-    );
-
-    if (result.rows.length === 0) {
+    const updated = await getStorage().updateFaultClass(parseInt(id), {
+      engineer_validated,
+      priority_to_improve,
+    });
+    res.json(updated);
+  } catch (err: any) {
+    if (err.message?.includes('not found')) {
       res.status(404).json({ error: 'Fault class not found' });
       return;
     }
-
-    res.json(result.rows[0]);
-  } catch (err) {
     console.error('Update fault class error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }

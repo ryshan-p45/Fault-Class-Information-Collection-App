@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { Parser } from '@json2csv/plainjs';
-import pool from '../db';
+import { getStorage } from '../storage';
 import { requireAuth } from '../middleware/auth';
 
 const router = Router();
@@ -8,77 +8,51 @@ const router = Router();
 // GET /api/export/csv
 router.get('/csv', requireAuth, async (_req: Request, res: Response): Promise<void> => {
   try {
-    const result = await pool.query(`
-      SELECT
-        fc.number,
-        fc.name,
-        fc.category,
-        fc.failure_reason,
-        fc.engineer_validated,
-        fc.priority_to_improve,
-        fca.s2a_description,
-        fca.s2a_commonality,
-        fca.s2a_intermittent,
-        fca.s2a_appears_with,
-        fca.s2b_clearest_signal,
-        fca.s2b_signal_combination,
-        fca.s2b_lifecycle_point,
-        fca.s2b_not_this_fault,
-        fca.s2b_confused_with,
-        fca.s2c_diagnostics,
-        fca.s2c_thresholds,
-        fca.s2c_additional_sources,
-        fca.s2d_resolution_steps,
-        fca.s2d_resolution_time,
-        fca.s2d_escalation_required,
-        fca.s2e_correct_response,
-        fca.s2e_example_case,
-        fca.s2e_edge_cases,
-        fca.s4_existing_docs,
-        fca.s4_needs_creating,
-        fca.s4_priority,
-        fca.s4_definition_chunk,
-        fca.s4_diagnostic_chunk,
-        fca.s4_resolution_chunk,
-        fca.s4_example_cases
-      FROM fault_classes fc
-      LEFT JOIN fault_class_answers fca ON fca.fault_class_id = fc.id
-      ORDER BY fc.number ASC
-    `);
+    const storage = getStorage();
+    const [faultClasses, allAnswers] = await Promise.all([
+      storage.getFaultClasses(),
+      storage.getAllAnswersForExport(),
+    ]);
 
-    const rows = result.rows.map((row) => ({
-      number: row.number,
-      name: row.name,
-      category: row.category,
-      failure_reason: row.failure_reason || '',
-      engineer_validated: row.engineer_validated ? 'Yes' : 'No',
-      priority_to_improve: row.priority_to_improve || '',
-      s2a_description: row.s2a_description || '',
-      s2a_commonality: row.s2a_commonality || '',
-      s2a_intermittent: row.s2a_intermittent || '',
-      s2a_appears_with: row.s2a_appears_with || '',
-      s2b_clearest_signal: row.s2b_clearest_signal || '',
-      s2b_signal_combination: row.s2b_signal_combination || '',
-      s2b_lifecycle_point: row.s2b_lifecycle_point || '',
-      s2b_not_this_fault: row.s2b_not_this_fault || '',
-      s2b_confused_with: row.s2b_confused_with || '',
-      s2c_diagnostics: row.s2c_diagnostics ? JSON.stringify(row.s2c_diagnostics) : '',
-      s2c_thresholds: row.s2c_thresholds || '',
-      s2c_additional_sources: row.s2c_additional_sources || '',
-      s2d_resolution_steps: row.s2d_resolution_steps ? JSON.stringify(row.s2d_resolution_steps) : '',
-      s2d_resolution_time: row.s2d_resolution_time || '',
-      s2d_escalation_required: row.s2d_escalation_required || '',
-      s2e_correct_response: row.s2e_correct_response || '',
-      s2e_example_case: row.s2e_example_case || '',
-      s2e_edge_cases: row.s2e_edge_cases || '',
-      s4_existing_docs: row.s4_existing_docs ? 'Yes' : 'No',
-      s4_needs_creating: row.s4_needs_creating || '',
-      s4_priority: row.s4_priority || '',
-      s4_definition_chunk: row.s4_definition_chunk ? 'Yes' : 'No',
-      s4_diagnostic_chunk: row.s4_diagnostic_chunk ? 'Yes' : 'No',
-      s4_resolution_chunk: row.s4_resolution_chunk ? 'Yes' : 'No',
-      s4_example_cases: row.s4_example_cases ? 'Yes' : 'No',
-    }));
+    const answersMap = new Map(allAnswers.map((a) => [a.fault_class_id, a]));
+
+    const rows = faultClasses.map((fc) => {
+      const ans = answersMap.get(fc.id);
+      const row = {
+        number: fc.number,
+        name: fc.name,
+        category: fc.category,
+        failure_reason: fc.failure_reason || '',
+        engineer_validated: fc.engineer_validated ? 'Yes' : 'No',
+        priority_to_improve: fc.priority_to_improve || '',
+        s2a_description: ans?.s2a_description || '',
+        s2a_commonality: ans?.s2a_commonality || '',
+        s2a_intermittent: ans?.s2a_intermittent || '',
+        s2a_appears_with: ans?.s2a_appears_with || '',
+        s2b_clearest_signal: ans?.s2b_clearest_signal || '',
+        s2b_signal_combination: ans?.s2b_signal_combination || '',
+        s2b_lifecycle_point: ans?.s2b_lifecycle_point || '',
+        s2b_not_this_fault: ans?.s2b_not_this_fault || '',
+        s2b_confused_with: ans?.s2b_confused_with || '',
+        s2c_diagnostics: ans?.s2c_diagnostics ? JSON.stringify(ans.s2c_diagnostics) : '',
+        s2c_thresholds: ans?.s2c_thresholds || '',
+        s2c_additional_sources: ans?.s2c_additional_sources || '',
+        s2d_resolution_steps: ans?.s2d_resolution_steps ? JSON.stringify(ans.s2d_resolution_steps) : '',
+        s2d_resolution_time: ans?.s2d_resolution_time || '',
+        s2d_escalation_required: ans?.s2d_escalation_required || '',
+        s2e_correct_response: ans?.s2e_correct_response || '',
+        s2e_example_case: ans?.s2e_example_case || '',
+        s2e_edge_cases: ans?.s2e_edge_cases || '',
+        s4_existing_docs: ans?.s4_existing_docs ? 'Yes' : 'No',
+        s4_needs_creating: ans?.s4_needs_creating || '',
+        s4_priority: ans?.s4_priority || '',
+        s4_definition_chunk: ans?.s4_definition_chunk ? 'Yes' : 'No',
+        s4_diagnostic_chunk: ans?.s4_diagnostic_chunk ? 'Yes' : 'No',
+        s4_resolution_chunk: ans?.s4_resolution_chunk ? 'Yes' : 'No',
+        s4_example_cases: ans?.s4_example_cases ? 'Yes' : 'No',
+      };
+      return row;
+    });
 
     const fields = [
       { value: 'number', label: 'Fault Class #' },
