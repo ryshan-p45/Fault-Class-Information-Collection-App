@@ -1,0 +1,69 @@
+Table users {
+  id serial [pk]
+  username varchar(255) [unique, not null]
+  password_hash varchar(255) [not null]
+  created_at timestamp [default: `now()`]
+}
+
+Table fault_classes {
+  id serial [pk]
+  number int [not null]
+  name varchar(255) [not null]
+  category varchar(100) [not null]
+  failure_reason text
+  engineer_validated boolean [default: false]
+  priority_to_improve varchar(100)
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table fault_class_answers {
+  id serial [pk]
+  fault_class_id int [ref: > fault_classes.id, unique]
+  s2a_description text
+  s2a_commonality text
+  s2a_intermittent text
+  s2a_appears_with text
+  s2b_clearest_signal text
+  s2b_signal_combination text
+  s2b_lifecycle_point text
+  s2b_not_this_fault text
+  s2b_confused_with text
+  s2c_diagnostics jsonb [default: `'[]'::jsonb`]
+  s2c_thresholds text
+  s2c_additional_sources text
+  s2d_resolution_steps jsonb [default: `'[]'::jsonb`]
+  s2d_resolution_time text
+  s2d_escalation_required text
+  s2e_correct_response text
+  s2e_example_case text
+  s2e_edge_cases text
+  s4_existing_docs boolean [default: false]
+  s4_needs_creating text
+  s4_priority varchar(100)
+  s4_definition_chunk boolean [default: false]
+  s4_diagnostic_chunk boolean [default: false]
+  s4_resolution_chunk boolean [default: false]
+  s4_example_cases boolean [default: false]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table global_answers {
+  id serial [pk]
+  s1_new_fault_classes text
+  s1_disputed_fault_classes text
+  s1_rare_obsolete text
+  s3_highest_impact text
+  s3_hardest_to_diagnose text
+  s3_most_misdiagnosed text
+  s3_first_to_improve text
+  s3_unlisted_faults text
+  s3_additional_endpoints text
+  s3_data_quality_issues text
+  s3_historical_cases text
+  s3_real_scenarios text
+  s3_wrong_recommendation text
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
